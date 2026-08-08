@@ -3,6 +3,7 @@ const CONFIG={
   MAPS_URL:"https://maps.app.goo.gl/wmgvvp46ANbGNgso7",
   MAPS_EMBED_URL:"",
   ZALO_URL:"https://zalo.me/0911400718",
+  ZALO_APP_URL:"zalo://zalo.me/0911400718",
   GTM_ID:"",
   GA4_ID:"",
   GOOGLE_ADS_ID:"",
@@ -23,7 +24,17 @@ function configureExternalLinks(){
  const mapsEls=[$('#maps-direction'),$('#maps-review'),$('#maps-float'),$('#maps-mobile')].filter(Boolean);
  if(CONFIG.MAPS_URL){mapsEls.forEach(el=>{el.href=CONFIG.MAPS_URL;el.target='_blank';el.rel='noopener'})}
  else {mapsEls.forEach(el=>el.addEventListener('click',e=>{if(el.getAttribute('href')==='#')e.preventDefault()}))}
- const z=[$('#zalo-float'),$('#zalo-mobile')].filter(Boolean);if(CONFIG.ZALO_URL){z.forEach(el=>{el.href=CONFIG.ZALO_URL;el.target='_blank';el.rel='noopener'})}
+ const z=[$('#zalo-float'),$('#zalo-mobile')].filter(Boolean);
+ // Always use the HTTPS Zalo link as the clickable destination. Unlike the zalo://
+ // protocol, this works reliably on desktop browsers and still lets mobile users
+ // continue into Zalo when their device/browser supports it.
+ if(CONFIG.ZALO_URL){
+   z.forEach(el=>{
+     el.href=CONFIG.ZALO_URL;
+     el.target='_blank';
+     el.rel='noopener noreferrer';
+   });
+ }
  if(CONFIG.MAPS_EMBED_URL){const slot=$('#map-slot');slot.hidden=false;slot.innerHTML=`<iframe title="Bản đồ Mây Spa Tân Phú" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${CONFIG.MAPS_EMBED_URL}"></iframe>`}
 }
 configureExternalLinks();

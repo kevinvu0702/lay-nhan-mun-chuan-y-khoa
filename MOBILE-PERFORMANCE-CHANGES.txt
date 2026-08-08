@@ -1,0 +1,9 @@
+MOBILE PERFORMANCE V2.3
+- Removed render-blocking Google Fonts @import; uses fast system font stack.
+- Added 520px mobile-specific hero image + preload/picture source.
+- Resized oversized 1200x1200 logo to 148x148.
+- Added content-visibility for below-the-fold mobile sections.
+- Reduced continuous CTA animation paint cost on mobile; heartbeat remains.
+- Disabled mobile backdrop-filter and CTA shine overlay.
+- Kept Zalo, phone, Maps, Google Form/Apps Script behavior unchanged.
+- Kept robots=noindex while hosted on temporary GitHub Pages to avoid indexing duplicate/staging URL. Change to index,follow only when the final custom domain/canonical is ready.
