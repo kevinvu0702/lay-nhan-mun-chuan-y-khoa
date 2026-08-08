@@ -1,0 +1,33 @@
+MÂY SPA V2.1 - QA CHECKLIST
+===========================
+
+ĐÃ KIỂM TRA BẰNG SOURCE:
+[PASS] HTML có lang=vi và meta viewport.
+[PASS] Chỉ một H1.
+[PASS] Hotline 0911 400 718 dùng tel:.
+[PASS] Form có label, required phone, autocomplete, validation JS.
+[PASS] Form không báo nhận dữ liệu khi chưa có endpoint.
+[PASS] FAQ dùng details/summary accessible.
+[PASS] CTA desktop và mobile tồn tại.
+[PASS] Mobile sticky bar dùng ba màu riêng.
+[PASS] prefers-reduced-motion tắt animation.
+[PASS] Feedback thật không bị bịa; section ẩn khi chưa có ảnh.
+[PASS] 4 card dịch vụ cập nhật đồng bộ desktop/mobile.
+
+CẦN CẤU HÌNH TRƯỚC KHI CHẠY ADS:
+[TODO] ZALO_URL
+[TODO] MAPS_URL
+[TODO] MAPS_EMBED_URL
+[TODO] FORM_ENDPOINT
+[TODO] GTM / GA4 / GOOGLE ADS CONVERSION
+[TODO] Canonical URL thật
+[TODO] Thêm ảnh feedback thật vào assets/images/feedback và FEEDBACK_IMAGES
+
+CẦN TEST TRÊN TRÌNH DUYỆT THẬT:
+[TODO] Chrome desktop 1440px
+[TODO] Tablet 768px
+[TODO] Mobile 360 / 390 / 430px
+[TODO] Menu hamburger
+[TODO] CTA sticky không che input/footer
+[TODO] Maps/Zalo sau khi cấu hình URL
+[TODO] Form live sau khi có endpoint

@@ -1,0 +1,21 @@
+IMAGE SOURCES — MÂY SPA LANDING PAGE V2
+
+Tất cả ảnh sử dụng trong project là ảnh thực tế do chủ Mây Spa cung cấp trong cuộc trò chuyện.
+No third-party stock images used.
+No AI-generated customer images used.
+No fabricated before/after images used.
+
+logo.webp — logo Mây Spa chính thức
+hero-van-tu-van.webp — ảnh Vân tư vấn khách
+van-kiem-tra-da.webp — ảnh Vân kiểm tra/trao đổi tình trạng da
+van-tu-van-khach.webp — ảnh tư vấn khách
+ktv-tu-van.webp — ảnh KTV trao đổi với khách
+khong-gian-may-spa.webp — không gian Mây Spa
+lam-diu-da.webp — chăm sóc/làm dịu da
+quy-trinh-cham-soc.webp — hình ảnh quy trình
+ktv-lay-nhan.webp — kỹ thuật viên lấy nhân
+tu-van-khach.webp — ảnh tư vấn khách
+
+V2.1 FEEDBACK
+- assets/images/feedback/: reserved for real customer feedback screenshots supplied by Mây Spa.
+- No synthetic/fake feedback images are included in the V2.1 build.
