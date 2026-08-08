@@ -2,7 +2,7 @@ const CONFIG={
   FORM_ENDPOINT:"",
   MAPS_URL:"https://maps.app.goo.gl/wmgvvp46ANbGNgso7",
   MAPS_EMBED_URL:"",
-  ZALO_URL:"zalo://zalo.me/0911400718",
+  ZALO_URL:"https://zalo.me/0911400718",
   GTM_ID:"",
   GA4_ID:"",
   GOOGLE_ADS_ID:"",
