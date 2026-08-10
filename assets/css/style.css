@@ -139,3 +139,126 @@
   .btn.pulse-green::after,.btn.pulse-coral::after{display:none}
   .site-header{backdrop-filter:none;background:rgba(255,253,250,.985)}
 }
+
+
+/* === READABILITY V2.4: larger text on desktop + mobile === */
+/* Keep headings visually balanced while raising small body/caption/control text that was hard to read. */
+@media(min-width:681px){
+  body{font-size:17px}
+  .main-nav{font-size:15px}
+  .eyebrow{font-size:14px}
+  .btn{font-size:16px}
+  .hero-address{font-size:15px}
+  .hero-media figcaption{font-size:14px}
+  .trust-grid div{font-size:15px}
+  .process-card p,.process-note,.price-card p,.reason-grid p{font-size:15px}
+  .process-media figcaption{font-size:13px}
+  .price-card .badge,.trial-label{font-size:13px}
+  .field label span{font-size:13px}
+  .form-status{font-size:15px}
+  .form-alt,.footer-tagline,.float-btn{font-size:14px}
+  .maps-note{font-size:15px}
+}
+@media(max-width:680px){
+  body{font-size:16px;line-height:1.68}
+  .brand small{font-size:13px}
+  .eyebrow{font-size:13px}
+  .lead{font-size:17px}
+  .hero-address{font-size:15px;line-height:1.55}
+  .hero-media figcaption{font-size:13px;line-height:1.5}
+  .hero-actions .btn{font-size:14px}
+  .trust-grid div{font-size:13px;line-height:1.45}
+  .center-head p{font-size:16px}
+  .icon-card p,.skin-card p{font-size:16px}
+  .brand-quote{font-size:17px}
+  .process-card h3{font-size:17px}
+  .process-card p{font-size:15px;line-height:1.6}
+  .process-note{font-size:15px;line-height:1.6}
+  .price-card .badge{font-size:11px}
+  .price-card h3{font-size:17px}
+  .price-card p{font-size:14px;line-height:1.6}
+  .price-card .btn{font-size:13px;line-height:1.35}
+  .old-price{font-size:14px}
+  .trial-label{font-size:12px}
+  .reason-grid h3{font-size:16px}
+  .reason-grid p{font-size:14px;line-height:1.55}
+  .faq-list summary{font-size:16px;line-height:1.5}
+  .faq-list p{font-size:15px}
+  .field label{font-size:16px}
+  .field label span{font-size:13px}
+  .field input,.field select{font-size:16px}
+  .form-status{font-size:15px}
+  .form-alt{font-size:14px}
+  .maps-note{font-size:14px}
+  .location-actions .btn,.final-actions .btn{font-size:14px}
+  .footer-brand p{font-size:14px;line-height:1.55}
+  .site-footer nav{font-size:15px}
+  .mobile-bar a{font-size:14px}
+}
+@media(max-width:420px){
+  .price-card h3{font-size:17px}
+  .price-card p{font-size:14px}
+  .price-card .btn{font-size:13px}
+  .mobile-bar a{font-size:14px}
+}
+
+
+/* === MOBILE UI V2.5: compact skin cards + compact pricing cards === */
+/* Revision #01: keep the number and skin-status title on one row to remove dead vertical space. */
+.skin-card-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.skin-card-head span{flex:0 0 auto;margin:0}
+.skin-card-head h3{margin:0}
+
+@media(max-width:680px){
+  .skin-card{padding:18px 20px}
+  .skin-card-head{gap:12px;margin-bottom:9px}
+  .skin-card-head span{width:42px;height:42px;font-size:13px}
+  .skin-card-head h3{font-size:18px;line-height:1.3;min-width:0}
+  .skin-card p{margin:0}
+
+  /* Revision #02: denser two-column service cards without shrinking readable text. */
+  .price-grid{gap:10px}
+  .price-card{
+    padding:15px 13px 14px;
+    min-height:0;
+    border-radius:20px;
+  }
+  .price-card .badge{
+    align-self:center;
+    justify-content:center;
+    text-align:center;
+    margin:0 auto 10px;
+    padding:5px 8px;
+    min-height:27px;
+    line-height:1.2;
+  }
+  .price-card h3{
+    min-height:0;
+    margin:0 0 10px;
+    line-height:1.3;
+  }
+  .price-card .price{
+    margin:0 0 8px;
+    line-height:1.1;
+  }
+  .price-card .old-price{margin:0 0 1px;line-height:1.25}
+  .price-card .trial-label{margin:3px 0 8px;line-height:1.3}
+  .price-card p{
+    flex:0 0 auto;
+    margin:0 0 12px;
+  }
+  .price-card .btn{
+    align-self:center;
+    width:auto;
+    min-width:92px;
+    min-height:40px;
+    padding:9px 16px;
+    margin-top:auto;
+    text-align:center;
+  }
+}
+@media(max-width:420px){
+  .price-card{padding:14px 11px 13px}
+  .price-card .badge{font-size:10.5px}
+  .price-card .btn{min-width:88px;padding:9px 14px}
+}

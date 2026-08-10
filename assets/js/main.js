@@ -5,7 +5,7 @@ const CONFIG={
   ZALO_URL:"https://zalo.me/0911400718",
   ZALO_APP_URL:"zalo://zalo.me/0911400718",
   GTM_ID:"",
-  GA4_ID:"",
+  GA4_ID:"G-RH96723LHM",
   GOOGLE_ADS_ID:"",
   GOOGLE_ADS_LABEL:"",
   // Add real feedback image filenames after placing them in assets/images/feedback/.
@@ -17,7 +17,35 @@ const menuBtn=$('.menu-toggle'), nav=$('#nav-menu');
 menuBtn?.addEventListener('click',()=>{const open=menuBtn.getAttribute('aria-expanded')==='true';menuBtn.setAttribute('aria-expanded',String(!open));nav.classList.toggle('open',!open)});
 $$('#nav-menu a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuBtn?.setAttribute('aria-expanded','false')}));
 function track(name,params={}){window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:name,...params});if(typeof window.gtag==='function')window.gtag('event',name,params)}
-$$('[data-track]').forEach(el=>el.addEventListener('click',()=>track(el.dataset.track,{label:el.textContent.trim(),source:el.dataset.bookingSource||el.id||''})));
+
+// Conversion deduplication V2.4
+// Prevent repeated key conversion events from the same browser on the same local calendar day.
+// generate_lead is deduped by normalized phone number; phone_click and zalo_click by event name.
+function localDayKey(){
+ const d=new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function normalizePhone(v=''){return String(v).replace(/\D/g,'').replace(/^84(?=\d{9,10}$)/,'0')}
+function trackOncePerDay(name,params={},identity=''){
+ const dedupeEvents=new Set(['generate_lead','phone_click','zalo_click']);
+ if(!dedupeEvents.has(name)){track(name,params);return true}
+ const id=identity?`:${identity}`:'';
+ const key=`maySpaConversion:${name}:${localDayKey()}${id}`;
+ try{
+   if(localStorage.getItem(key))return false;
+   localStorage.setItem(key,'1');
+ }catch(err){
+   // If storage is unavailable, keep analytics functional rather than blocking the event.
+ }
+ track(name,{...params,deduped_daily:true});
+ return true;
+}
+$$('[data-track]').forEach(el=>el.addEventListener('click',()=>{
+ const name=el.dataset.track;
+ const params={label:el.textContent.trim(),source:el.dataset.bookingSource||el.id||''};
+ if(name==='phone_click'||name==='zalo_click')trackOncePerDay(name,params);
+ else track(name,params);
+}));
 $('#year').textContent=new Date().getFullYear();
 
 function configureExternalLinks(){
@@ -61,9 +89,10 @@ leadTarget?.addEventListener('load',()=>{
  if(btn){btn.disabled=false;btn.textContent='Gửi yêu cầu tư vấn →'}
  status.textContent='Mây đã nhận thông tin 💚 Mây sẽ liên hệ lại để kiểm tra nhu cầu và tư vấn mức chăm sóc phù hợp.';
  status.style.color='#0d7a43';
+ const submittedPhone=normalizePhone(phone?.value||'');
  form?.reset();
  track('form_submit',{mode:'apps_script_google_form'});
- track('generate_lead');
+ trackOncePerDay('generate_lead',{mode:'apps_script_google_form'},submittedPhone);
 });
 
 form?.addEventListener('submit',e=>{

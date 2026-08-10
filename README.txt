@@ -45,3 +45,12 @@ FORM NHẬN LEAD (ĐÃ KÍCH HOẠT)
 - Số điện thoại: entry.624637788
 - Tình trạng: entry.1920438506
 - Google Form phải tiếp tục liên kết với Google Sheets để lưu lead.
+
+
+V2.5 MOBILE COMPACT + GA4
+- Mobile #01: 01/02 number and skin-condition title share one row.
+- Mobile #02: badges centered; pricing cards compacted; pricing CTA renamed to “Đặt lịch”.
+- Readability improvements from V2.4 retained.
+- GA4 measurement ID retained/embedded: G-RH96723LHM.
+- Key events retained: generate_lead, phone_click, zalo_click.
+- Daily deduplication retained; generate_lead uses normalized submitted phone captured before form reset.
