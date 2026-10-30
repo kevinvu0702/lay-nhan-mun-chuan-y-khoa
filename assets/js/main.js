@@ -2,8 +2,6 @@ const CONFIG={
   FORM_ENDPOINT:"",
   MAPS_URL:"https://maps.app.goo.gl/wmgvvp46ANbGNgso7",
   MAPS_EMBED_URL:"",
-  ZALO_URL:"https://zalo.me/0911400718",
-  ZALO_APP_URL:"zalo://zalo.me/0911400718",
   GTM_ID:"",
   // GA4 is initialized in index.html; avoid a conflicting unused ID.
   GOOGLE_ADS_ID:"",
@@ -36,17 +34,6 @@ function configureExternalLinks(){
  const mapsEls=[$('#maps-direction'),$('#maps-review'),$('#maps-float'),$('#maps-mobile')].filter(Boolean);
  if(CONFIG.MAPS_URL){mapsEls.forEach(el=>{el.href=CONFIG.MAPS_URL;el.target='_blank';el.rel='noopener'})}
  else {mapsEls.forEach(el=>el.addEventListener('click',e=>{if(el.getAttribute('href')==='#')e.preventDefault()}))}
- const z=[$('#zalo-float'),$('#zalo-mobile')].filter(Boolean);
- // Always use the HTTPS Zalo link as the clickable destination. Unlike the zalo://
- // protocol, this works reliably on desktop browsers and still lets mobile users
- // continue into Zalo when their device/browser supports it.
- if(CONFIG.ZALO_URL){
-   z.forEach(el=>{
-     el.href=CONFIG.ZALO_URL;
-     el.target='_blank';
-     el.rel='noopener noreferrer';
-   });
- }
  if(CONFIG.MAPS_EMBED_URL){const slot=$('#map-slot');slot.hidden=false;slot.innerHTML=`<iframe title="Bản đồ Mây Spa Tân Phú" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${CONFIG.MAPS_EMBED_URL}"></iframe>`}
 }
 configureExternalLinks();
@@ -62,7 +49,37 @@ setupFeedback();
 
 const form=$('#lead-form'), status=$('#form-status'), phone=$('#phone'), phoneErr=$('#phone-error'), leadTarget=$('#lead-submit-target');
 let submitting=false, awaitingLeadResponse=false;
-function validPhone(v){return /^(0|\+84)[0-9\s.()-]{8,14}$/.test(v.trim())}
+function validPhone(v){return /^0[0-9]{9}$/.test(normalizePhone(v))}
+// Persist acquisition attribution in the current browser for direct return visits.
+const attributionKeys=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','gbraid','wbraid'];
+const query=new URLSearchParams(location.search);
+for(const key of attributionKeys){
+ const value=(query.get(key)||'').slice(0,250);
+ if(value){try{sessionStorage.setItem('may_'+key,value)}catch(_){}}
+ const field=form?.elements.namedItem(key);
+ if(field){let saved='';try{saved=sessionStorage.getItem('may_'+key)||''}catch(_){}field.value=value||saved}
+}
+const landingField=form?.elements.namedItem('landing_page');if(landingField)landingField.value=location.origin+location.pathname;
+$$('[data-booking-source]').forEach(a=>a.addEventListener('click',()=>{const field=form?.elements.namedItem('booking_cta_source');if(field)field.value=a.dataset.bookingSource||''}));
+const bookingDate=$('#booking-date'),bookingTime=$('#booking-time');
+function localDateString(d){const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+function spaNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}))}
+function setupBookingSlots(){
+ if(!bookingDate||!bookingTime)return;
+ const today=spaNow();bookingDate.min=localDateString(today);
+ const max=new Date(today);max.setDate(max.getDate()+30);bookingDate.max=localDateString(max);
+ const selected=bookingTime.value;bookingTime.innerHTML='<option value="">Chọn giờ đến</option>';
+ const isToday=bookingDate.value===localDateString(today);
+ for(let minute=9*60;minute<=19*60+30;minute+=15){
+   if(isToday&&minute<=today.getHours()*60+today.getMinutes())continue;
+   const hh=String(Math.floor(minute/60)).padStart(2,'0'),mm=String(minute%60).padStart(2,'0');
+   const opt=document.createElement('option');opt.value=hh+':'+mm;opt.textContent=opt.value;bookingTime.appendChild(opt);
+ }
+ if([...bookingTime.options].some(o=>o.value===selected))bookingTime.value=selected;
+}
+bookingDate?.addEventListener('change',()=>{bookingTime.value='';setupBookingSlots();$('#booking-date-error').textContent=''});
+bookingTime?.addEventListener('change',()=>{$('#booking-time-error').textContent=''});
+setupBookingSlots();
 phone?.addEventListener('input',()=>{phoneErr.textContent='';if(!phone.dataset.started){phone.dataset.started='1';track('form_start')}});
 
 leadTarget?.addEventListener('load',()=>{
@@ -70,9 +87,9 @@ leadTarget?.addEventListener('load',()=>{
  awaitingLeadResponse=false;
  submitting=false;
  const btn=form?.querySelector('button[type=submit]');
- if(btn){btn.disabled=false;btn.textContent='Gửi yêu cầu tư vấn →'}
+ if(btn){btn.disabled=false;btn.textContent='Gửi yêu cầu đặt lịch →'}
  status.textContent='Yêu cầu đã được gửi đi, nhưng hệ thống chưa xác minh được kết quả lưu thông tin. Nếu cần đặt lịch ngay, vui lòng gọi 0911 400 718.';
- status.style.color='#0d7a43';
+ status.style.color='#8a5b1d';
  const submittedPhone=normalizePhone(phone?.value||'');
  // Keep the entered information until a verified success response is available.
  track('form_transport_complete',{mode:'apps_script_iframe_unverified'});
@@ -82,6 +99,11 @@ leadTarget?.addEventListener('load',()=>{
 form?.addEventListener('submit',e=>{
  if(submitting){e.preventDefault();return}
  const p=phone.value.trim();
+ const now=spaNow();
+ if(!bookingDate.value||bookingDate.value<localDateString(now)||bookingDate.value>bookingDate.max){e.preventDefault();$('#booking-date-error').textContent='Vui lòng chọn ngày hợp lệ trong 30 ngày tới.';bookingDate.focus();return}
+ setupBookingSlots();
+ if(!bookingTime.value){e.preventDefault();$('#booking-time-error').textContent='Vui lòng chọn khung giờ còn trong danh sách.';bookingTime.focus();return}
+ track('booking_request_submit',{booking_date:bookingDate.value,booking_time:bookingTime.value,booking_status:'cho_xac_nhan'});
  if(!validPhone(p)){
    e.preventDefault();
    phoneErr.textContent='Vui lòng nhập số điện thoại hợp lệ.';
@@ -96,13 +118,13 @@ form?.addEventListener('submit',e=>{
  status.textContent='Đang gửi thông tin đến Mây...';
  status.style.color='#617167';
  // Native POST goes to the deployed Apps Script web app in a hidden iframe.
- // Apps Script submits a real response into the connected Google Form, which then writes to Google Sheets.
+ // Existing Apps Script endpoint must be updated to map new booking and attribution fields into the Sheet.
  setTimeout(()=>{
    if(awaitingLeadResponse){
      awaitingLeadResponse=false;
      submitting=false;
      btn.disabled=false;
-     btn.textContent='Gửi yêu cầu tư vấn →';
+     btn.textContent='Gửi yêu cầu đặt lịch →';
      status.textContent='Nếu chưa thấy xác nhận, vui lòng thử lại hoặc gọi Mây: 0911 400 718.';
      status.style.color='#8a5b1d';
    }
