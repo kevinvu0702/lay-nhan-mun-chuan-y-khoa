@@ -71,11 +71,11 @@ leadTarget?.addEventListener('load',()=>{
  submitting=false;
  const btn=form?.querySelector('button[type=submit]');
  if(btn){btn.disabled=false;btn.textContent='Gửi yêu cầu tư vấn →'}
- status.textContent='Yêu cầu đã được gửi. Nếu chưa được Mây xác nhận, vui lòng gọi 0911 400 718.';
+ status.textContent='Yêu cầu đã được gửi đi, nhưng hệ thống chưa xác minh được kết quả lưu thông tin. Nếu cần đặt lịch ngay, vui lòng gọi 0911 400 718.';
  status.style.color='#0d7a43';
  const submittedPhone=normalizePhone(phone?.value||'');
- form?.reset();
- track('form_submit',{mode:'apps_script_google_form'});
+ // Keep the entered information until a verified success response is available.
+ track('form_transport_complete',{mode:'apps_script_iframe_unverified'});
  // Do not fire generate_lead: iframe load alone does not verify successful lead storage.
 });
 
