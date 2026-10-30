@@ -5,7 +5,7 @@ const CONFIG={
   ZALO_URL:"https://zalo.me/0911400718",
   ZALO_APP_URL:"zalo://zalo.me/0911400718",
   GTM_ID:"",
-  GA4_ID:"G-RH96723LHM",
+  // GA4 is initialized in index.html; avoid a conflicting unused ID.
   GOOGLE_ADS_ID:"",
   GOOGLE_ADS_LABEL:"",
   // Add real feedback image filenames after placing them in assets/images/feedback/.
@@ -16,30 +16,14 @@ const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>[...c.querySelect
 const menuBtn=$('.menu-toggle'), nav=$('#nav-menu');
 menuBtn?.addEventListener('click',()=>{const open=menuBtn.getAttribute('aria-expanded')==='true';menuBtn.setAttribute('aria-expanded',String(!open));nav.classList.toggle('open',!open)});
 $$('#nav-menu a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuBtn?.setAttribute('aria-expanded','false')}));
-function track(name,params={}){window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:name,...params});if(typeof window.gtag==='function')window.gtag('event',name,params)}
-
-// Conversion deduplication V2.4
-// Prevent repeated key conversion events from the same browser on the same local calendar day.
-// generate_lead is deduped by normalized phone number; phone_click and zalo_click by event name.
-function localDayKey(){
- const d=new Date();
- return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function track(name,params={}){
+  // gtag already writes to dataLayer; pushing again duplicates GTM events.
+  if(typeof window.gtag==='function')window.gtag('event',name,params);
+  else {window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:name,...params});}
 }
-function normalizePhone(v=''){return String(v).replace(/\D/g,'').replace(/^84(?=\d{9,10}$)/,'0')}
-function trackOncePerDay(name,params={},identity=''){
- const dedupeEvents=new Set(['generate_lead','phone_click','zalo_click']);
- if(!dedupeEvents.has(name)){track(name,params);return true}
- const id=identity?`:${identity}`:'';
- const key=`maySpaConversion:${name}:${localDayKey()}${id}`;
- try{
-   if(localStorage.getItem(key))return false;
-   localStorage.setItem(key,'1');
- }catch(err){
-   // If storage is unavailable, keep analytics functional rather than blocking the event.
- }
- track(name,{...params,deduped_daily:true});
- return true;
-}
+function normalizePhone(v=''){return String(v).replace(/\\D/g,'').replace(/^84(?=\\d{9,10}$)/,'0')}
+// Record genuine contact clicks without browser-local daily suppression.
+function trackOncePerDay(name,params={}){track(name,params);return true}
 $$('[data-track]').forEach(el=>el.addEventListener('click',()=>{
  const name=el.dataset.track;
  const params={label:el.textContent.trim(),source:el.dataset.bookingSource||el.id||''};
@@ -87,12 +71,12 @@ leadTarget?.addEventListener('load',()=>{
  submitting=false;
  const btn=form?.querySelector('button[type=submit]');
  if(btn){btn.disabled=false;btn.textContent='Gửi yêu cầu tư vấn →'}
- status.textContent='Mây đã nhận thông tin 💚 Mây sẽ liên hệ lại để kiểm tra nhu cầu và tư vấn mức chăm sóc phù hợp.';
+ status.textContent='Yêu cầu đã được gửi đi, nhưng hệ thống chưa xác minh được kết quả lưu thông tin. Nếu cần đặt lịch ngay, vui lòng gọi 0911 400 718.';
  status.style.color='#0d7a43';
  const submittedPhone=normalizePhone(phone?.value||'');
- form?.reset();
- track('form_submit',{mode:'apps_script_google_form'});
- trackOncePerDay('generate_lead',{mode:'apps_script_google_form'},submittedPhone);
+ // Keep the entered information until a verified success response is available.
+ track('form_transport_complete',{mode:'apps_script_iframe_unverified'});
+ // Do not fire generate_lead: iframe load alone does not verify successful lead storage.
 });
 
 form?.addEventListener('submit',e=>{
