@@ -21,11 +21,11 @@ function track(name,params={}){
 }
 function normalizePhone(v=''){return String(v).replace(/\\D/g,'').replace(/^84(?=\\d{9,10}$)/,'0')}
 // Record genuine contact clicks without browser-local daily suppression.
-function trackOncePerDay(name,params={}){track(name,params);return true}
+function trackContactClick(name,params={}){track(name,params)}
 $$('[data-track]').forEach(el=>el.addEventListener('click',()=>{
  const name=el.dataset.track;
  const params={label:el.textContent.trim(),source:el.dataset.bookingSource||el.id||''};
- if(name==='phone_click'||name==='zalo_click')trackOncePerDay(name,params);
+ if(name==='phone_click'||name==='zalo_click')trackContactClick(name,params);
  else track(name,params);
 }));
 $('#year').textContent=new Date().getFullYear();
@@ -105,7 +105,7 @@ function showBookingNotice(verified){
  if(bookingModal){bookingModal.hidden=false;document.body.style.overflow='hidden';bookingModalClose?.focus()}
  status.textContent=verified?'Mây Spa đã ghi nhận lịch đặt.':'Yêu cầu đặt lịch đã được gửi; chưa xác minh phản hồi lưu dữ liệu.';
  status.style.color=verified?'#087b45':'#617167';
- if(verified)track('generate_lead',{lead_type:'booking_request',booking_status:'cho_xac_nhan'});
+ if(verified)track('generate_lead',{lead_type:'booking_request',booking_status:'cho_xac_nhan',form_id:'lead-form'});
  form?.reset();setupBookingSlots();
  const button=form?.querySelector('button[type=submit]');if(button){button.disabled=false;button.textContent='Gửi yêu cầu đặt lịch →'}
 }
@@ -133,7 +133,6 @@ form?.addEventListener('submit',e=>{
  if(!bookingDate.value||bookingDate.value<localDateString(now)||bookingDate.value>bookingDate.max){e.preventDefault();$('#booking-date-error').textContent='Vui lòng chọn ngày hợp lệ trong 30 ngày tới.';bookingDate.focus();return}
  setupBookingSlots();
  if(!bookingTime.value){e.preventDefault();$('#booking-time-error').textContent='Vui lòng chọn khung giờ còn trong danh sách.';bookingTime.focus();return}
- track('booking_request_submit',{booking_date:bookingDate.value,booking_time:bookingTime.value,booking_status:'cho_xac_nhan'});
  if(!validPhone(p)){
    e.preventDefault();
    phoneErr.textContent='Vui lòng nhập số điện thoại hợp lệ.';
@@ -142,6 +141,8 @@ form?.addEventListener('submit',e=>{
  }
  activeRequestId=(typeof crypto!=='undefined'&&typeof crypto.randomUUID==='function')?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
  requestField.value=activeRequestId;
+ // One event per validated submission attempt; this is NOT proof of a saved lead.
+ track('booking_request_submit',{booking_status:'cho_xac_nhan',form_id:'lead-form',submission_method:'iframe'});
  bookingDone=false;
  bookingDateSent=bookingDate.value;
  bookingTimeSent=bookingTime.value;
