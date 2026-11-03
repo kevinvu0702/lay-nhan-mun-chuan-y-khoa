@@ -20,14 +20,19 @@ function track(name,params={}){
   else {window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:name,...params});}
 }
 function normalizePhone(v=''){return String(v).replace(/\\D/g,'').replace(/^84(?=\\d{9,10}$)/,'0')}
-// Record genuine contact clicks without browser-local daily suppression.
-function trackContactClick(name,params={}){track(name,params)}
-$$('[data-track]').forEach(el=>el.addEventListener('click',()=>{
- const name=el.dataset.track;
- const params={label:el.textContent.trim(),source:el.dataset.bookingSource||el.id||''};
- if(name==='phone_click'||name==='zalo_click')trackContactClick(name,params);
- else track(name,params);
+// Track every phone CTA consistently, including links without a data-track attribute.
+// GA4 phone_click means an intent to call; it cannot verify a connected call.
+$$('a[href^="tel:"]').forEach((el,index)=>el.addEventListener('click',()=>{
+ track('phone_click',{contact_method:'phone',link_location:el.dataset.bookingSource||el.id||el.closest('section')?.id||el.closest('header,footer')?.tagName.toLowerCase()||'other',link_index:index});
 }));
+$$('[data-track]').forEach(el=>{
+ if(el.matches('a[href^="tel:"]'))return; // Already tracked once by phone handler.
+ el.addEventListener('click',()=>{
+  const name=el.dataset.track;
+  track(name,{label:el.textContent.trim(),source:el.dataset.bookingSource||el.id||''});
+ });
+});
+
 $('#year').textContent=new Date().getFullYear();
 
 function configureExternalLinks(){
@@ -85,7 +90,7 @@ bookingDate?.addEventListener('change',()=>{bookingTime.value='';setupBookingSlo
 bookingTime?.addEventListener('change',()=>{$('#booking-time-error').textContent=''});
 setupBookingSlots();
 nameInput?.addEventListener('input',()=>{if(nameErr)nameErr.textContent=''});
-phone?.addEventListener('input',()=>{phoneErr.textContent='';if(!phone.dataset.started){phone.dataset.started='1';track('form_start')}});
+phone?.addEventListener('input',()=>{phoneErr.textContent=''}); // form_start is recorded by GA4 enhanced measurement.
 
 const bookingModal=$('#booking-success-modal'),bookingModalDetail=$('#booking-success-detail'),bookingModalClose=$('#booking-success-close');
 function closeBookingModal(){if(bookingModal)bookingModal.hidden=true;document.body.style.overflow=''}
